@@ -1,0 +1,15 @@
+{
+  "name": "missedhvac-cdn",
+  "version": "1.0.0",
+  "description": "CDN for MissedHVAC chat widget",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static files ready'",
+    "start": "vercel --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
