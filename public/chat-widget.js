@@ -92,12 +92,15 @@
         }
 
         .message-bubble {
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-        }
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    text-align: left;
+    list-style-position: inside;
+    text-indent: 0;
+}
 
         .message.user .message-bubble {
             background: #f97316;
@@ -254,13 +257,12 @@
             <div class="chat-messages" id="chat-messages">
                 <div class="message assistant">
                     <div class="message-bubble">
-                        Hi! I'm your 24/7 HVAC assistant. I can help with:
-                        • Emergency diagnostics
-                        • Service appointments 
-                        • Pricing estimates
-                        • Troubleshooting
-
-                        What's going on with your HVAC system?
+                      Hi! I'm your 24/7 HVAC assistant. I can help with:
+                        <br><br>• Emergency diagnostics
+                        <br>• Service appointments 
+                        <br>• Pricing estimates
+                        <br>• Troubleshooting
+                        <br><br>What's going on with your HVAC system?
                     </div>
                 </div>
             </div>
@@ -350,7 +352,7 @@
     
     const bubbleDiv = document.createElement('div');
     bubbleDiv.className = 'message-bubble';
-    bubbleDiv.textContent = content;
+    bubbleDiv.innerHTML = content;
     
     messageDiv.appendChild(bubbleDiv);
     messagesContainer.appendChild(messageDiv);
