@@ -11,13 +11,13 @@
     const config = {
         apiEndpoint: document.currentScript?.getAttribute('data-api-endpoint') || 'https://missedhvac-api.vercel.app/api/chat',
         customerId: document.currentScript?.getAttribute('data-customer-id') || 'demo',
-        emergencyPhone: document.currentScript?.getAttribute('data-emergency-phone') || '(555) 987-6543',
+        emergencyPhone: document.currentScript?.getAttribute('data-emergency-phone') || '(555) 987-6643',
         theme: document.currentScript?.getAttribute('data-theme') || 'orange',
         position: document.currentScript?.getAttribute('data-position') || 'bottom-right',
         assistantName: document.currentScript?.getAttribute('data-assistant-name') || 'HVAC Assistant'
     };
 
-    // CSS Styles (unchanged, but confirming overflow-y: auto on .chat-messages)
+    // CSS Styles
     const styles = `
         #hvac-chat-widget {
             position: fixed;
@@ -71,7 +71,6 @@
             flex: 1;
             padding: 16px;
             overflow-y: auto;
-            max-height: none;  /* Removed max-height restriction to allow full scrolling */
             scroll-behavior: smooth;
             display: flex;
             flex-direction: column;
@@ -92,15 +91,15 @@
         }
 
         .message-bubble {
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.4;
-    white-space: pre-wrap;
-    text-align: left;
-    list-style-position: inside;
-    text-indent: 0;
-}
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            text-align: left;
+            list-style-position: inside;
+            text-indent: 0;
+        }
 
         .message.user .message-bubble {
             background: #f97316;
@@ -257,7 +256,7 @@
             <div class="chat-messages" id="chat-messages">
                 <div class="message assistant">
                     <div class="message-bubble">
-                      Hi! I'm your 24/7 HVAC assistant. I can help with:
+                        Hi! I'm your 24/7 HVAC assistant. I can help with:
                         <br><br>• Emergency diagnostics
                         <br>• Service appointments 
                         <br>• Pricing estimates
@@ -300,19 +299,10 @@
     let isOpen = false;
     let conversationHistory = [];
 
-    // IMPROVED SCROLL TO BOTTOM WITH DELAY AND REFLOW HANDLING
     function scrollToBottom() {
         const messagesContainer = document.getElementById('chat-messages');
         if (messagesContainer) {
-            // Immediate scroll
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            // Scroll again after reflow (for long messages that take time to render)
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 0);
-            
-            // Third scroll after short delay for safety
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -329,7 +319,7 @@
             widget.classList.add('open');
             button.style.display = 'none';
             document.getElementById('chat-input').focus();
-            setTimeout(scrollToBottom, 100);  // Ensure scroll on open
+            setTimeout(scrollToBottom, 100);
         } else {
             widget.classList.remove('open');
             button.style.display = 'flex';
@@ -346,79 +336,71 @@
     }
 
     function addMessage(content, isUser = false) {
-    const messagesContainer = document.getElementById('chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
-    
-    const bubbleDiv = document.createElement('div');
-    bubbleDiv.className = 'message-bubble';
-    bubbleDiv.innerHTML = content;
-    
-    messageDiv.appendChild(bubbleDiv);
-    messagesContainer.appendChild(messageDiv);
-    
-    scrollToBottom();
-    
-   async function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const sendButton = document.getElementById('chat-send');
-    const message = input.value.trim();
-
-    if (!message) return;
-
-    // Add user message
-    addMessage(message, true);
-    conversationHistory.push({ role: 'user', content: message });
-    
-    // Clear input
-    input.value = '';
-    input.style.height = 'auto';
-    sendButton.disabled = true;
-    
-    // Show typing indicator
-    showTypingIndicator();
-
-    try {
-        const response = await fetch(config.apiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                messages: conversationHistory,
-                customerId: config.customerId
-            })
-        });
-
-        const data = await response.json();
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
         
-        hideTypingIndicator();
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'message-bubble';
+        bubbleDiv.innerHTML = content;
         
-        // Fix JSON parsing - handle the response properly
-        const responseText = data.content || data.response || "I'm having trouble responding right now.";
-        console.log('API Response:', data); // Debug log
-        console.log('Extracted text:', responseText); // Debug log
+        messageDiv.appendChild(bubbleDiv);
+        messagesContainer.appendChild(messageDiv);
         
-        // Add AI response
-        addMessage(responseText);
-        conversationHistory.push({ role: 'assistant', content: responseText });
-
-    } catch (error) {
-        console.error('Chat error:', error);
-        hideTypingIndicator();
-        addMessage(`I apologize, but I'm having trouble connecting right now. For immediate HVAC assistance, please call ${config.emergencyPhone}.`);
-    } finally {
-        sendButton.disabled = false;
-        input.focus();
+        scrollToBottom();
     }
-}
-        hideTypingIndicator();
-        addMessage(`I apologize, but I'm having trouble connecting right now. For immediate HVAC assistance, please call ${config.emergencyPhone}.`);
-    } finally {
-        sendButton.disabled = false;
-        input.focus();
+
+    async function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('chat-send');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, true);
+        conversationHistory.push({ role: 'user', content: message });
+        
+        // Clear input
+        input.value = '';
+        input.style.height = 'auto';
+        sendButton.disabled = true;
+        
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const response = await fetch(config.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    messages: conversationHistory,
+                    customerId: config.customerId
+                })
+            });
+
+            const data = await response.json();
+            
+            hideTypingIndicator();
+            
+            // Fix JSON parsing - handle the response properly
+            const responseText = data.content || data.response || "I'm having trouble responding right now.";
+            
+            // Add AI response
+            addMessage(responseText);
+            conversationHistory.push({ role: 'assistant', content: responseText });
+
+        } catch (error) {
+            console.error('Chat error:', error);
+            hideTypingIndicator();
+            addMessage(`I apologize, but I'm having trouble connecting right now. For immediate HVAC assistance, please call ${config.emergencyPhone}.`);
+        } finally {
+            sendButton.disabled = false;
+            input.focus();
+        }
     }
-}
 
     // Event listeners
     document.getElementById('hvac-chat-button').addEventListener('click', toggleChat);
