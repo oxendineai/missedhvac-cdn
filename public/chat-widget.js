@@ -359,23 +359,23 @@
     
     scrollToBottom();
     
-    // Return the bubble so we can update it
-    return bubbleDiv; 
-}
-
-    async function sendMessage() {
+   async function sendMessage() {
     const input = document.getElementById('chat-input');
     const sendButton = document.getElementById('chat-send');
     const message = input.value.trim();
 
     if (!message) return;
 
-    // --- UI updates ---
+    // Add user message
     addMessage(message, true);
     conversationHistory.push({ role: 'user', content: message });
+    
+    // Clear input
     input.value = '';
     input.style.height = 'auto';
     sendButton.disabled = true;
+    
+    // Show typing indicator
     showTypingIndicator();
 
     try {
@@ -390,35 +390,28 @@
             })
         });
 
+        const data = await response.json();
+        
         hideTypingIndicator();
-
-        if (!response.body) {
-            throw new Error('Response body is empty.');
-        }
-
-        // --- Stream Processing Logic ---
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = '';
-
-        // Create an empty bubble for the assistant's message
-        const assistantBubble = addMessage('', false); 
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            fullResponse += decoder.decode(value, { stream: true });
-            assistantBubble.textContent = fullResponse; // Update bubble text
-            
-            // Keep scrolling to the bottom as new text arrives
-            scrollToBottom(); 
-        }
-
-        conversationHistory.push({ role: 'assistant', content: fullResponse });
+        
+        // Fix JSON parsing - handle the response properly
+        const responseText = data.content || data.response || "I'm having trouble responding right now.";
+        console.log('API Response:', data); // Debug log
+        console.log('Extracted text:', responseText); // Debug log
+        
+        // Add AI response
+        addMessage(responseText);
+        conversationHistory.push({ role: 'assistant', content: responseText });
 
     } catch (error) {
         console.error('Chat error:', error);
+        hideTypingIndicator();
+        addMessage(`I apologize, but I'm having trouble connecting right now. For immediate HVAC assistance, please call ${config.emergencyPhone}.`);
+    } finally {
+        sendButton.disabled = false;
+        input.focus();
+    }
+}
         hideTypingIndicator();
         addMessage(`I apologize, but I'm having trouble connecting right now. For immediate HVAC assistance, please call ${config.emergencyPhone}.`);
     } finally {
