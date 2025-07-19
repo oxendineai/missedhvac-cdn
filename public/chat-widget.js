@@ -24,7 +24,7 @@
             bottom: 20px;
             right: 20px;
             width: 350px;
-            height: 500px;
+            height: 600px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
